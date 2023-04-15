@@ -5,6 +5,7 @@ use machine::*;
 fn main() {
     let mut machine = Machine::new();
 
+    // how the asm should kinda be
     let memory = [
         // mov val 0x11 to reg 0x00
         0x50, 0x20, 0x00, 0x11,
