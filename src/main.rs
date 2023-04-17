@@ -1,21 +1,23 @@
-mod ram;
-mod stack;
-mod processor;
 
-use processor::Pu8;
+mod machine;
 
 fn main() {
+    /*
     let mut machine = Pu8::new();
 
     // how the asm should kinda be
     let instructions = [
         // mov val 0xf0 to reg 0x00
+        // mov a 0xf0
         0x50, 0x20, 0x00, 0xf0,
         // cmp adr at reg 0x00 and val 0x00
+        // cmp [a] 0x00
         0x40, 0x23, 0x00, 0x00,
         // add from val 0x01 to reg 0x00
+        // add 0x00 0x01
         0x00, 0x20, 0x00, 0x01,
         // jne to 0x04
+        // jne 0x04
         0x21, 0x04,
 
         0x01, 0x20, 0x00, 0xf0,
@@ -47,4 +49,5 @@ fn main() {
         machine.step();
     }
     println!("{:?}", machine);
+    */
 }

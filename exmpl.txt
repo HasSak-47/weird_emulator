@@ -1,0 +1,13 @@
+section.text
+	global start
+
+_start:
+	mov a 0xf0
+while:
+	cmp [a] 0x00
+	add a 0x01
+	jne while
+
+	end
+
+section.data:
