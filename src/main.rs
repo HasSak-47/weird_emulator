@@ -1,9 +1,9 @@
-#[allow(dead_code)]
-mod machine;
-use machine::*;
+mod ram;
+mod processor;
 
 fn main() {
-    let mut machine = Machine::new();
+    /*
+    let mut machine = Processor::new();
 
     // how the asm should kinda be
     let memory = [
@@ -26,14 +26,15 @@ fn main() {
     ];
 
     for val in 0..memory.len() {
-        machine.mem[val] = memory[val];
+        machine.ram[val] = memory[val];
     }
 
-    while machine.mem[machine.mem_ptr] != 0xf0{
+    while machine.ram[machine.ram_ptr] != 0xf0{
         println!("{:?}", machine);
         let mut buffer = String::new();
         std::io::stdin().read_line(&mut buffer).unwrap();
 
         machine.step();
     }
+    */
 }
