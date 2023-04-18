@@ -28,7 +28,8 @@ impl std::fmt::Display for CmpFlag{
 #[repr(u8)]
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Default, Debug)]
 pub enum Instruction{
-    // arithmetic instructions
+    // math stuff
+        // arithmetic instructions
     Add = 0x00,
     Sub = 0x01,
     Mul = 0x02,
@@ -41,30 +42,32 @@ pub enum Instruction{
     FDiv = 0x08,
 
     // bitwise instructions
-    And = 0x10,
-    Or  = 0x11,
-    Not = 0x12,
+    And = 0x0c,
+    Or  = 0x0d,
+    Xor = 0x0e,
+
+    // cmp instructions
+    Cmp = 0x0f,
 
     // jmp instructions
-    Jmp = 0x20,
-    JNE = 0x21,
-    JE  = 0x22,
-    JL  = 0x23,
-    JB  = 0x24,
-    JEL = 0x25,
-    JEB = 0x26,
+    Jmp = 0x10,
+    JNE = 0x11,
+    JE  = 0x12,
+    JL  = 0x13,
+    JB  = 0x14,
+    JEL = 0x15,
+    JEB = 0x16,
 
     // stack instructions
-    Push = 0x30,
-    Pop  = 0x31,
-    // cmp instructions
-    Cmp  = 0x40,
+    Push = 0x1e,
+    Pop  = 0x1f,
     // move instructions
-    Mov  = 0x50,
+    Mov  = 0x50, // TO A8
+
     // calls
-    Ker  = 0x60,
+    Int  = 0x60,
     Call = 0x61,
-    Rel  = 0x62,// rel calls the emulator
+    Rel  = 0x6e,// rel calls the emulator
     Ret  = 0x6f,
 
     // Other
@@ -84,7 +87,17 @@ enum ReadFlag{
     VAL = 0x2,
     ARG = 0x3,
     ARM = 0x4,
-    NON = 0xf,
+}
+
+#[allow(dead_code)]
+#[repr(u8)]
+#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Default, Debug)]
+enum SizeFlag{
+    #[default]
+    B8  = 0xf0,
+    B16 = 0xf1,
+    B32 = 0xf2,
+    B64 = 0xf3,
 }
 
 impl Display for Instruction{
