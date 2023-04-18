@@ -9,8 +9,9 @@ use std::{
     num::Wrapping,
 };
 
-pub type Pu8 = Processor<u8, 256, 256>;
+pub type Pu8 = Processor<u8, u8, u8, 256, 256>;
 
+#[allow(dead_code)]
 impl Pu8{
     pub fn new() -> Pu8{ Pu8 { cmp_flag: CmpFlag::Equal, reg: [0; 4], stk: Stack::new(), ram: RAM::new(), inst_ptr: 0, }}
 
@@ -23,9 +24,9 @@ impl Pu8{
         match modf{
             0x0 => self.reg[ind],
             0x1 => self.ram[ind],
-            0x2 => val as u8,
-            0x3 => self.ram[self.reg[ind] as usize],
-            0x4 => self.ram[self.ram[ind] as usize],
+            0x2 => val,
+            0x3 => self.ram[self.reg[ind]],
+            0x4 => self.ram[self.ram[ind]],
 
             _ => {panic!("unknown src/dst flag")}
         }
@@ -72,24 +73,9 @@ impl Pu8{
 
     fn operation(&mut self, oper: fn(Wrapping<u8>, Wrapping<u8>) -> u8) {
         let op = self.get_oper();
-        // println!("{op:x?}");
         *op.2 = oper(Wrapping(op.0), Wrapping(op.1));
 
         self.inst_ptr += 4;
-    }
-
-    fn add(&mut self) {self.operation(|a, b| (a + b).0);}
-    fn sub(&mut self) {self.operation(|a, b| (a - b).0);}
-    fn mul(&mut self) {self.operation(|a, b| (a * b).0);}
-    fn div(&mut self) {self.operation(|a, b| (a / b).0);}
-
-    fn and(&mut self) {self.operation(|a, b| (a & b).0);}
-    fn or (&mut self) {self.operation(|a, b| (a | b).0);}
-    fn not(&mut self) {}
-
-    fn jmp(&mut self){
-        let operant = self.get_next();
-        self.inst_ptr = operant as usize;
     }
 
     fn con_jump(&mut self, flag: CmpFlag) {
@@ -100,20 +86,39 @@ impl Pu8{
         }
         self.inst_ptr += 2;
     }
+}
+
+impl Process for Pu8{
+    fn add(&mut self) {self.operation(|a, b| (a + b).0);}
+    fn sub(&mut self) {self.operation(|a, b| (a - b).0);}
+    fn mul(&mut self) {self.operation(|a, b| (a * b).0);}
+    fn div(&mut self) {self.operation(|a, b| (a / b).0);}
+    fn mdi(&mut self) {self.operation(|a, b| (a % b).0);}
+
+    fn addf(&mut self) {}
+    fn subf(&mut self) {}
+    fn mulf(&mut self) {}
+    fn divf(&mut self) {}
+
+    fn and(&mut self) {self.operation(|a, b| (a & b).0);}
+    fn or (&mut self) {self.operation(|a, b| (a | b).0);}
+    fn not(&mut self) {}
+
+    fn jmp(&mut self){
+        let operant = self.get_next();
+        self.inst_ptr = operant as usize;
+    }
 
     fn jne(&mut self) { self.con_jump(CmpFlag::Different) }
     fn  je(&mut self) { self.con_jump(CmpFlag::Equal) }
     fn  jl(&mut self) { self.con_jump(CmpFlag::Lesser) }
+    fn  jb(&mut self) { self.con_jump(CmpFlag::Bigger) }
+    // will fix later
+    fn jel(&mut self) { self.con_jump(CmpFlag::Lesser) }
+    fn jeb(&mut self) { self.con_jump(CmpFlag::Equal) }
 
-    fn push(&mut self) {
-        let operant = self.get_operant();
-        self.stk.push(operant)
-    }
-    fn  pop(&mut self) {
-        // let operant = self.get_operant();
-        // self.stc[self.stc_ptr] = operant;
-        // self.stc_ptr += 1;
-    }
+    fn push(&mut self) { }
+    fn  pop(&mut self) { }
 
     fn cmp(&mut self) {
         let operants = self.get_operants();
@@ -131,42 +136,15 @@ impl Pu8{
 
     }
 
-    fn  int(&mut self) {}
-    fn call(&mut self) {}
-    fn  err(&mut self) {}
-    fn end(&mut self) {}
+    fn  ker(&mut self){}
+    fn call(&mut self){}
+    fn  rel(&mut self){}
 
-    pub fn step(&mut self) {
-        let inst = self.ram[self.inst_ptr];
-        use Instruction::*;
-        match Instruction::from(inst){
-            Add => self.add(),
-            Sub => self.sub(),
-            Mul => self.mul(),
-            Div => self.div(),
+    fn  err(&mut self){}
+    fn  end(&mut self){}
 
-            And => self.and(),
-            Or  => self.or(),
-            Not => self.not(),
-
-            Jmp => self.jmp(),
-            JNE => self.jne(),
-            JE  => self.je(),
-            JL  => self.jl(),
-
-            Push => self.push(),
-            Pop  => self.pop(),
-
-            Cmp => self.cmp(),
-
-            Mov => self.mov(),
-
-            Call => self.call(),
-
-            End => self.end(),
-
-            _ => {},
-        }
+    fn get_inst(&self) -> Instruction{
+        Instruction::from(self.ram[self.inst_ptr])
     }
 }
 

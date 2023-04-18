@@ -1,14 +1,29 @@
 use std::fmt::Debug;
 use std::ops::{IndexMut, Index};
+use super::util::impl_index;
 
 #[derive(Clone, Copy)]
 pub struct RAM<T, const SIZE: usize>{
     data: [T; SIZE], 
 }
 
+#[allow(dead_code)]
 impl<T, const SIZE: usize> RAM<T, SIZE>
 where T: Default + Copy,{
     pub fn new() -> Self{Self{data: [T::default(); SIZE]}}
+
+    pub fn get0(&self, ptr: usize) -> &T{
+        &self.data[ptr]
+    }
+    pub fn get1(&self, ptr: usize) -> (&T, &T){
+        (&self.data[ptr], &self.data[ptr + 1])
+    }
+    pub fn get2(&self, ptr: usize) -> (&T, &T, &T){
+        (&self.data[ptr], &self.data[ptr + 1], &self.data[ptr + 2])
+    }
+    pub fn get3(&self, ptr: usize) -> (&T, &T, &T, &T){
+        (&self.data[ptr], &self.data[ptr + 1], &self.data[ptr + 2], &self.data[ptr + 3])
+    }
 }
 
 impl<T, const SIZE: usize> Debug for RAM<T, SIZE>
@@ -40,30 +55,10 @@ where
 
 }
 
-macro_rules! impl_index_uint {
-    ($type: ident) => {
-        impl<T, const SIZE: usize> Index<$type> for RAM<T, SIZE>{
-            type Output = T;
-        
-            fn index(&self, index: $type) -> &Self::Output {
-                &self.data[index as usize]
-            }
-        }
-
-        impl<T, const SIZE: usize> IndexMut<$type> for RAM<T, SIZE>{
-        
-            fn index_mut(&mut self, index: $type) -> &mut T{
-                &mut self.data[index as usize]
-            }
-        }
-
-    };
-}
-
-impl_index_uint!(u8);
-impl_index_uint!(u16);
-impl_index_uint!(u32);
-impl_index_uint!(u64);
-impl_index_uint!(u128);
-impl_index_uint!(usize);
+impl_index!(RAM, u8);
+impl_index!(RAM, u16);
+impl_index!(RAM, u32);
+impl_index!(RAM, u64);
+impl_index!(RAM, u128);
+impl_index!(RAM, usize);
 

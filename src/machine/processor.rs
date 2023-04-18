@@ -1,4 +1,4 @@
-use std::{fmt::{Display, Debug}, default};
+use std::fmt::{Display, Debug};
 use super::stack::Stack;
 use super::ram::RAM;
 
@@ -85,6 +85,7 @@ enum ReadFlag{
     VAL = 0x2,
     ARG = 0x3,
     ARM = 0x4,
+    NON = 0xf,
 }
 
 impl Display for Instruction{
@@ -104,15 +105,92 @@ impl From<u8> for Instruction{
     }
 }
 
+#[allow(dead_code)]
+pub trait Process{
+    // arithmetic instructions
+    fn add(&mut self);
+    fn sub(&mut self);
+    fn mul(&mut self);
+    fn div(&mut self);
+    fn mdi(&mut self);
+
+    fn addf(&mut self);
+    fn subf(&mut self);
+    fn mulf(&mut self);
+    fn divf(&mut self);
+
+    fn and(&mut self);
+    fn or (&mut self);
+    fn not(&mut self);
+
+    fn jmp(&mut self);
+    fn jne(&mut self);
+    fn  je(&mut self);
+    fn  jl(&mut self);
+    fn  jb(&mut self);
+    fn jel(&mut self);
+    fn jeb(&mut self);
+
+    fn push(&mut self);
+    fn  pop(&mut self);
+
+    fn  cmp(&mut self);
+
+    fn  mov(&mut self);
+
+    fn  ker(&mut self);
+    fn call(&mut self);
+    fn  rel(&mut self);
+
+    fn  err(&mut self);
+    fn  end(&mut self);
+
+    fn get_inst(&self) -> Instruction;
+
+    fn step(&mut self) {
+        let inst = self.get_inst();
+        use Instruction::*;
+        match inst{
+            Add => self.add(),
+            Sub => self.sub(),
+            Mul => self.mul(),
+            Div => self.div(),
+
+            And => self.and(),
+            Or  => self.or(),
+            Not => self.not(),
+
+            Jmp => self.jmp(),
+            JNE => self.jne(),
+            JE  => self.je(),
+            JL  => self.jl(),
+
+            Push => self.push(),
+            Pop  => self.pop(),
+
+            Cmp => self.cmp(),
+
+            Mov => self.mov(),
+
+            Call => self.call(),
+
+            End => self.end(),
+
+            _ => {},
+        }
+    }
+
+}
+
 
 #[derive(Clone, Copy)]
-pub struct Processor<T: 'static, const RAM_LEN: usize, const STACK_LEN: usize>{
+pub struct Processor<MT, ST, GT, const RAM_LEN: usize, const STACK_LEN: usize>{
     pub cmp_flag: CmpFlag, 
 
     // memory
-    pub reg:      [T; 4],
-    pub stk: Stack<T, STACK_LEN>,
-    pub ram:   RAM<T, RAM_LEN>,
+    pub reg:      [GT; 4],
+    pub stk: Stack<ST, STACK_LEN>,
+    pub ram:   RAM<MT, RAM_LEN>,
 
     pub inst_ptr: usize,
 }
