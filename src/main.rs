@@ -1,8 +1,6 @@
 mod machine;
 
 fn main() {
-    let m = machine::reg::Reg::<u8, 4>::new();
-    println!("{}", m[0usize]);
     /*
     let mut machine = Pu8::new();
 
