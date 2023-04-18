@@ -8,27 +8,23 @@ pub struct RAM<T, const SIZE: usize>{
 }
 
 #[allow(dead_code)]
-impl<T, const SIZE: usize> RAM<T, SIZE>
-where T: Default + Copy,{
+impl<T: Default + Copy, const SIZE: usize> RAM<T, SIZE>{
     pub fn new() -> Self{Self{data: [T::default(); SIZE]}}
 }
     
 // more unsafe brrrrr
 impl<T, const SIZE: usize> RAM<T, SIZE>{
-    pub fn get_as<T2, U: Into<usize>>(&self, index: U) -> &T2{
-        let p : *const T= &self.data[index.into()];
-        unsafe{ &*(p as *const T2) }
+    pub fn get_as<OutT, U: Into<usize>>(&self, index: U) -> &OutT{
+        let p : *const T = &self.data[index.into()];
+        unsafe{ &*(p as *const OutT) }
     }
-    pub fn get_as_mut<T2, U: Into<usize>>(&mut self, index: U) -> &T2{
-        let p : *mut T= &mut self.data[index.into()];
-        unsafe{ &*(p as *mut T2) }
+    pub fn get_as_mut<OutT, U: Into<usize>>(&mut self, index: U) -> &OutT{
+        let p : *mut T = &mut self.data[index.into()];
+        unsafe{ &*(p as *mut OutT) }
     }
 }
 
-impl<T, const SIZE: usize> Debug for RAM<T, SIZE>
-where 
-    T: std::fmt::LowerHex
-{
+impl<T: std::fmt::LowerHex, const SIZE: usize> Debug for RAM<T, SIZE> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         // print x line
         for i in 0..8 { write!(f, "0{:x} ", i)?; }
@@ -54,10 +50,10 @@ where
 
 }
 
-impl_index!(RAM, u8);
-impl_index!(RAM, u16);
-impl_index!(RAM, u32);
-impl_index!(RAM, u64);
-impl_index!(RAM, u128);
-impl_index!(RAM, usize);
+impl_index!(RAM<T, SIZE>, u8);
+impl_index!(RAM<T, SIZE>, u16);
+impl_index!(RAM<T, SIZE>, u32);
+impl_index!(RAM<T, SIZE>, u64);
+impl_index!(RAM<T, SIZE>, u128);
+impl_index!(RAM<T, SIZE>, usize);
 

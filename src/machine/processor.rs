@@ -1,6 +1,5 @@
 use std::fmt::{Display, Debug};
-use super::stack::Stack;
-use super::ram::RAM;
+use super::{stack::Stack, ram::RAM, reg::Reg};
 
 #[repr(u8)]
 #[derive(Clone, Copy, Default, PartialEq, Eq)]
@@ -28,52 +27,47 @@ impl std::fmt::Display for CmpFlag{
 #[repr(u8)]
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Default, Debug)]
 pub enum Instruction{
-    // math stuff
-        // arithmetic instructions
-    Add = 0x00,
-    Sub = 0x01,
-    Mul = 0x02,
-    Div = 0x03,
-    Mod = 0x04,
-        //float
-    FAdd = 0x05,
-    FSub = 0x06,
-    FMul = 0x07,
-    FDiv = 0x08,
+    // byte size dependent 
+    // first nibble is the len of the arguments, the second is the instruction itself
+    Add  = 0x00,
+    Sub  = 0x01,
+    Mul  = 0x02,
+    Div  = 0x03,
+    Mod  = 0x04,
 
-    // bitwise instructions
-    And = 0x0c,
-    Or  = 0x0d,
-    Xor = 0x0e,
+    And  = 0x05,
+    Or   = 0x06,
+    Xor  = 0x07,
+    Not  = 0x08,
 
-    // cmp instructions
-    Cmp = 0x0f,
+    Cmp  = 0x09,
 
+    Push = 0x0a,
+    Pop  = 0x0b,
+
+    Mov  = 0x0c,
+
+    //the rule set above no longer applies
     // jmp instructions
-    Jmp = 0x10,
-    JNE = 0x11,
-    JE  = 0x12,
-    JL  = 0x13,
-    JB  = 0x14,
-    JEL = 0x15,
-    JEB = 0x16,
+    Jmp = 0xe0,
+    JNE = 0xe1,
+    JE  = 0xe2,
+    JL  = 0xe3,
+    JB  = 0xe4,
+    JEL = 0xe5,
+    JEB = 0xe6,
 
-    // stack instructions
-    Push = 0x1e,
-    Pop  = 0x1f,
-    // move instructions
-    Mov  = 0x50, // TO A8
 
     // calls
-    Int  = 0x60,
-    Call = 0x61,
-    Rel  = 0x6e,// rel calls the emulator
-    Ret  = 0x6f,
+    Int  = 0xf1,//interrupt
+    Call = 0xf2, 
+    Rel  = 0xf3,// rel calls the emulator
+    Ret  = 0xf4,// return
+    End  = 0xfe,
 
     // Other
     #[default]
-    End  = 0xf0,
-    ERR  = 0xff,
+    FUL  = 0xff,
 }
 
 
@@ -87,17 +81,6 @@ enum ReadFlag{
     VAL = 0x2,
     ARG = 0x3,
     ARM = 0x4,
-}
-
-#[allow(dead_code)]
-#[repr(u8)]
-#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Default, Debug)]
-enum SizeFlag{
-    #[default]
-    B8  = 0xf0,
-    B16 = 0xf1,
-    B32 = 0xf2,
-    B64 = 0xf3,
 }
 
 impl Display for Instruction{
@@ -116,6 +99,18 @@ impl From<u8> for Instruction{
         }
     }
 }
+
+// unsafe code goes brrrrr
+impl Into<u8> for Instruction{
+    fn into(self) -> u8{
+        unsafe{
+            let ptr: *const Instruction= &self;
+
+            *(ptr as *const u8)
+        }
+    }
+}
+
 
 #[allow(dead_code)]
 pub trait Process{
@@ -163,9 +158,20 @@ pub trait Process{
     fn  end(&mut self);
 
     fn get_inst(&self) -> Instruction;
+    fn set_bytelen(&mut self, len: u8);
 
     fn step(&mut self) {
         let inst = self.get_inst();
+        let val : u8 = inst.clone().into();
+        let len = val / 16;
+
+        // fucking 7th grade code
+        let inst = if len <= 3 {
+            self.set_bytelen(len);
+            Instruction::from(0x0f & val)
+        }
+        else{inst};
+
         use Instruction::*;
         // there must be a less bullshit way to implement this
         match inst{
@@ -186,13 +192,13 @@ pub trait Process{
             Push => self.push(),
             Pop  => self.pop(),
 
-            Cmp => self.cmp(),
+            Cmp  => self.cmp(),
 
-            Mov => self.mov(),
+            Mov  => self.mov(),
 
             Call => self.call(),
-            End => self.end(),
-            Ret => self.ret(),
+            Ret  => self.ret(),
+            End  => self.end(),
 
             _ => {},
         }
@@ -200,15 +206,16 @@ pub trait Process{
 
 }
 
-
-#[derive(Clone, Copy)]
-pub struct Processor<MT, ST, GT, const RAM_LEN: usize, const STACK_LEN: usize>{
+pub struct Processor<const RAM_LEN: usize, const STACK_LEN: usize>{
     pub cmp_flag: CmpFlag, 
 
     // memory
-    pub reg:      [GT; 4],
-    pub stk: Stack<ST, STACK_LEN>,
-    pub ram:   RAM<MT, RAM_LEN>,
+    pub reg8 : Reg<u8, 4>,
+    pub reg16: Reg<u16, 4>,
+    pub reg32: Reg<u32, 4>,
+    pub reg64: Reg<u64, 4>,
+    pub stk: Stack<STACK_LEN>,
+    pub ram:   RAM<u8, RAM_LEN>,
 
     pub inst_ptr: usize,
 }

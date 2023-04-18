@@ -1,26 +1,25 @@
 use std::ops::{Index, IndexMut};
 use super::util::impl_index;
 
-pub struct Reg<T, const TOTAL: usize>{
-    pub data: [T; TOTAL],
+pub struct Reg<T, const SIZE: usize>{
+    pub data: [T; SIZE],
 }
 
-impl<T: Default + Copy, const TOTAL: usize> Reg<T, TOTAL>{
-    pub fn new() -> Self{ Reg {data: [T::default(); TOTAL]}}
+impl<T: Default + Copy, const SIZE: usize> Reg<T, SIZE>{
+    pub fn new() -> Self{ Reg {data: [T::default(); SIZE]}}
 }
-impl_index!(Reg, u8);
-impl_index!(Reg, u16);
-impl_index!(Reg, u32);
-impl_index!(Reg, u64);
-impl_index!(Reg, u128);
-impl_index!(Reg, usize);
-
-impl_index!(Reg, i8);
-impl_index!(Reg, i16);
-impl_index!(Reg, i32);
-impl_index!(Reg, i64);
-impl_index!(Reg, i128);
-impl_index!(Reg, isize);
+impl_index!(Reg<T, SIZE>, u8);
+impl_index!(Reg<T, SIZE>, u16);
+impl_index!(Reg<T, SIZE>, u32);
+impl_index!(Reg<T, SIZE>, u64);
+impl_index!(Reg<T, SIZE>, u128);
+impl_index!(Reg<T, SIZE>, usize);
+impl_index!(Reg<T, SIZE>, i8);
+impl_index!(Reg<T, SIZE>, i16);
+impl_index!(Reg<T, SIZE>, i32);
+impl_index!(Reg<T, SIZE>, i64);
+impl_index!(Reg<T, SIZE>, i128);
+impl_index!(Reg<T, SIZE>, isize);
 /*
 macro_rules! create_reg_deref {
     ($name: ident, $($field: ident), *) => {
