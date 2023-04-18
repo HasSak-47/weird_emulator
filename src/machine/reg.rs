@@ -15,6 +15,7 @@ impl_index!(Reg, u64);
 impl_index!(Reg, u128);
 impl_index!(Reg, usize);
 
+/*
 macro_rules! create_reg_deref {
     ($name: ident, $($field: ident), *) => {
         #[repr(C)]
@@ -29,3 +30,4 @@ create_reg_deref!(__Reg1, a);
 create_reg_deref!(__Reg2, a, b);
 create_reg_deref!(__Reg3, a, b, c);
 create_reg_deref!(__Reg4, a, b, c, d);
+*/
