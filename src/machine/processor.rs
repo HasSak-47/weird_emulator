@@ -1,4 +1,4 @@
-use std::{fmt::{Display, Debug}};
+use std::{fmt::{Display, Debug}, default};
 use super::stack::Stack;
 use super::ram::RAM;
 
@@ -65,12 +65,26 @@ pub enum Instruction{
     // calls
     Ker  = 0x60,
     Call = 0x61,
+    // rel calls the emulator
     Rel  = 0x62,
 
     // Other
     #[default]
     End  = 0xf0,
     ERR  = 0xff,
+}
+
+
+#[allow(dead_code)]
+#[repr(u8)]
+#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Default, Debug)]
+enum ReadFlag{
+    #[default]
+    REG = 0x0,
+    RAM = 0x1,
+    VAL = 0x2,
+    ARG = 0x3,
+    ARM = 0x4,
 }
 
 impl Display for Instruction{
@@ -92,13 +106,13 @@ impl From<u8> for Instruction{
 
 
 #[derive(Clone, Copy)]
-pub struct Processor<T: 'static>{
+pub struct Processor<T: 'static, const RAM_LEN: usize, const STACK_LEN: usize>{
     pub cmp_flag: CmpFlag, 
 
     // memory
     pub reg:      [T; 4],
-    pub stk: Stack<T, 256>,
-    pub ram:   RAM<T, 256>,
+    pub stk: Stack<T, STACK_LEN>,
+    pub ram:   RAM<T, RAM_LEN>,
 
     pub inst_ptr: usize,
 }

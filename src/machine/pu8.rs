@@ -9,7 +9,7 @@ use std::{
     num::Wrapping,
 };
 
-pub type Pu8 = Processor<u8>;
+pub type Pu8 = Processor<u8, 256, 256>;
 
 impl Pu8{
     pub fn new() -> Pu8{ Pu8 { cmp_flag: CmpFlag::Equal, reg: [0; 4], stk: Stack::new(), ram: RAM::new(), inst_ptr: 0, }}
