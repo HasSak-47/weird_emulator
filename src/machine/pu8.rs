@@ -2,18 +2,27 @@ use super::{
     processor::*,
     stack::*,
     ram::*,
+    reg::*,
 };
 
 use std::{
     fmt::{Display, Debug},
     num::Wrapping,
 };
-
-pub type Pu8 = Processor<u8, u8, u8, 256, 256>;
+pub type Pu8 = Processor<256, 256>;
 
 #[allow(dead_code)]
 impl Pu8{
-    pub fn new() -> Pu8{ Pu8 { cmp_flag: CmpFlag::Equal, reg: [0; 4], stk: Stack::new(), ram: RAM::new(), inst_ptr: 0, }}
+    pub fn new() -> Pu8 { Pu8 {
+        cmp_flag: CmpFlag::Equal,
+        reg8:  Reg::new(),
+        reg16: Reg::new(),
+        reg32: Reg::new(),
+        reg64: Reg::new(),
+        stk: Stack::new(),
+        ram: RAM::new(),
+        inst_ptr: 0,
+    }}
 
     fn get_next(&self) -> u8{
         self.ram[self.inst_ptr + 1]
@@ -22,10 +31,10 @@ impl Pu8{
     fn get_val(&self, modf: u8, val: u8) -> u8{
         let ind = val as usize;
         match modf{
-            0x0 => self.reg[ind],
+            0x0 => self.reg8[ind],
             0x1 => self.ram[ind],
             0x2 => val,
-            0x3 => self.ram[self.reg[ind]],
+            0x3 => self.ram[self.reg8[ind]],
             0x4 => self.ram[self.ram[ind]],
 
             _ => {panic!("unknown src/dst flag")}
@@ -62,7 +71,7 @@ impl Pu8{
 
         let ind = self.ram[self.inst_ptr + 2];
         let dst_ref = match dst_mod{
-            0x00 => { &mut self.reg[ind as usize]},
+            0x00 => { &mut self.reg8[ind as usize]},
             0x01 => { &mut self.ram[ind] },
             _ => panic!("unknown dst ref"),
         };
@@ -148,17 +157,21 @@ impl Process for Pu8{
     fn get_inst(&self) -> Instruction{
         Instruction::from(self.ram[self.inst_ptr])
     }
+
+    fn set_bytelen(&mut self, len: u8) {
+        
+    }
 }
 
 impl Display for Pu8{
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f,
-"reg: 0x{:02x} 0x{:02x} 0x{:02x} 0x{:02x}
+"reg8: 0x{:02x} 0x{:02x} 0x{:02x} 0x{:02x}
 cmp: {}
 index: 0x{:x}
 next instruction: {} [x{:x}]
 ",
-            self.reg[0], self.reg[1], self.reg[2], self.reg[3],
+            self.reg8[0], self.reg8[1], self.reg8[2], self.reg8[3],
             self.cmp_flag,
             self.inst_ptr,
             Instruction::from(self.ram[self.inst_ptr]), self.ram[self.inst_ptr],
