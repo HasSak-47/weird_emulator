@@ -109,11 +109,12 @@ impl Process for Pu8{
         self.inst_ptr = operant as usize;
     }
 
+    // this is fucked
+    // will fix later
     fn jne(&mut self) { self.con_jump(CmpFlag::Different) }
     fn  je(&mut self) { self.con_jump(CmpFlag::Equal) }
     fn  jl(&mut self) { self.con_jump(CmpFlag::Lesser) }
     fn  jb(&mut self) { self.con_jump(CmpFlag::Bigger) }
-    // will fix later
     fn jel(&mut self) { self.con_jump(CmpFlag::Lesser) }
     fn jeb(&mut self) { self.con_jump(CmpFlag::Equal) }
 
@@ -139,6 +140,7 @@ impl Process for Pu8{
     fn  ker(&mut self){}
     fn call(&mut self){}
     fn  rel(&mut self){}
+    fn  ret(&mut self){}
 
     fn  err(&mut self){}
     fn  end(&mut self){}

@@ -6,11 +6,10 @@ use super::ram::RAM;
 #[derive(Clone, Copy, Default, PartialEq, Eq)]
 pub enum CmpFlag{
     #[default]
-    Different = 0,
-
-    Equal    = 1,
-    Lesser   = 2,
-    Bigger   = 3,
+    Different = 0b00,
+    Lesser    = 0b01,
+    Bigger    = 0b10,
+    Equal     = 0b11,
 }
 
 impl std::fmt::Display for CmpFlag{
@@ -65,8 +64,8 @@ pub enum Instruction{
     // calls
     Ker  = 0x60,
     Call = 0x61,
-    // rel calls the emulator
-    Rel  = 0x62,
+    Rel  = 0x62,// rel calls the emulator
+    Ret  = 0x6f,
 
     // Other
     #[default]
@@ -119,10 +118,12 @@ pub trait Process{
     fn mulf(&mut self);
     fn divf(&mut self);
 
+    // bitwise operations 
     fn and(&mut self);
     fn or (&mut self);
     fn not(&mut self);
 
+    // jump instructions
     fn jmp(&mut self);
     fn jne(&mut self);
     fn  je(&mut self);
@@ -131,9 +132,11 @@ pub trait Process{
     fn jel(&mut self);
     fn jeb(&mut self);
 
+    // stack
     fn push(&mut self);
     fn  pop(&mut self);
 
+    //
     fn  cmp(&mut self);
 
     fn  mov(&mut self);
@@ -141,6 +144,7 @@ pub trait Process{
     fn  ker(&mut self);
     fn call(&mut self);
     fn  rel(&mut self);
+    fn  ret(&mut self);
 
     fn  err(&mut self);
     fn  end(&mut self);
@@ -150,6 +154,7 @@ pub trait Process{
     fn step(&mut self) {
         let inst = self.get_inst();
         use Instruction::*;
+        // there must be a less bullshit way to implement this
         match inst{
             Add => self.add(),
             Sub => self.sub(),
@@ -173,8 +178,8 @@ pub trait Process{
             Mov => self.mov(),
 
             Call => self.call(),
-
             End => self.end(),
+            Ret => self.ret(),
 
             _ => {},
         }
