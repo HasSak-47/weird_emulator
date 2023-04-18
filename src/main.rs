@@ -1,5 +1,5 @@
-
 mod machine;
+mod assembler;
 
 fn main() {
     /*
