@@ -15,6 +15,12 @@ impl_index!(Reg, u64);
 impl_index!(Reg, u128);
 impl_index!(Reg, usize);
 
+impl_index!(Reg, i8);
+impl_index!(Reg, i16);
+impl_index!(Reg, i32);
+impl_index!(Reg, i64);
+impl_index!(Reg, i128);
+impl_index!(Reg, isize);
 /*
 macro_rules! create_reg_deref {
     ($name: ident, $($field: ident), *) => {

@@ -11,18 +11,17 @@ pub struct RAM<T, const SIZE: usize>{
 impl<T, const SIZE: usize> RAM<T, SIZE>
 where T: Default + Copy,{
     pub fn new() -> Self{Self{data: [T::default(); SIZE]}}
-
-    pub fn get0(&self, ptr: usize) -> &T{
-        &self.data[ptr]
+}
+    
+// more unsafe brrrrr
+impl<T, const SIZE: usize> RAM<T, SIZE>{
+    pub fn get_as<T2, U: Into<usize>>(&self, index: U) -> &T2{
+        let p : *const T= &self.data[index.into()];
+        unsafe{ &*(p as *const T2) }
     }
-    pub fn get1(&self, ptr: usize) -> (&T, &T){
-        (&self.data[ptr], &self.data[ptr + 1])
-    }
-    pub fn get2(&self, ptr: usize) -> (&T, &T, &T){
-        (&self.data[ptr], &self.data[ptr + 1], &self.data[ptr + 2])
-    }
-    pub fn get3(&self, ptr: usize) -> (&T, &T, &T, &T){
-        (&self.data[ptr], &self.data[ptr + 1], &self.data[ptr + 2], &self.data[ptr + 3])
+    pub fn get_as_mut<T2, U: Into<usize>>(&mut self, index: U) -> &T2{
+        let p : *mut T= &mut self.data[index.into()];
+        unsafe{ &*(p as *mut T2) }
     }
 }
 
