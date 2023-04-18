@@ -1,5 +1,6 @@
 use std::fmt::Debug;
 
+#[allow(dead_code)]
 #[derive(Clone, Copy, Debug)]
 pub struct Stack<T, const SIZE: usize>{
     data: [T; SIZE], 
@@ -11,6 +12,7 @@ where T: Default + Copy,{
     pub fn new() -> Self{Self{data: [T::default(); SIZE], index: 0}}
 }
 
+#[allow(dead_code)]
 impl<T, const SIZE: usize> Stack<T, SIZE>
 where 
     T : Clone,
